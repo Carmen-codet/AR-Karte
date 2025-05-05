@@ -2,25 +2,38 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>AR Marker Test</title>
+    <title>Urlaubskarte in AR</title>
 
-    <!-- A-Frame 0.8.0 -->
+    <!-- A-Frame & AR.js -->
     <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
-
-    <!-- AR.js für A-Frame -->
     <script src="https://cdn.rawgit.com/jeromeetienne/ar.js/1.7.2/aframe/build/aframe-ar.min.js"></script>
   </head>
 
   <body style="margin: 0; overflow: hidden;">
     <a-scene embedded arjs="sourceType: webcam;">
-
-      <!-- Marker mit 3D-Objekten -->
+      
+      <!-- Marker -->
       <a-marker type="pattern" url="pattern-marker.patt">
-        <!-- 3D-Würfel -->
-        <a-box position="0 0.5 0" color="#4CC3D9" depth="0.5" height="0.5" width="0.5"></a-box>
+        
+        <!-- Inselbild (Plane mit Textur) -->
+        <a-plane 
+          position="0 0.5 0" 
+          rotation="0 0 0" 
+          width="1.5" 
+          height="1" 
+          material="src: #insel; transparent: true">
+        </a-plane>
 
-        <!-- Container für Sterne -->
+        <!-- Rückseite mit Text "Schönen Urlaub" -->
+        <a-entity position="0 0.5 0" rotation="0 180 0">
+          <a-text value="Schönen Urlaub!" align="center" color="#FF69B4" width="2"></a-text>
+        </a-entity>
+
+        <!-- Container für Sterne (wie vorher) -->
         <a-entity id="stern-container"></a-entity>
+
+        <!-- Container für bunte Regentropfen -->
+        <a-entity id="regen-container"></a-entity>
       </a-marker>
 
       <!-- Kamera -->
@@ -32,19 +45,20 @@
       <a href="marker.png" target="_blank">Marker anzeigen</a>
     </div>
 
-    <!-- JavaScript für Sterne -->
+    <!-- Inselbild (als PNG) -->
+    <img id="insel" src="insel-mit-palme.png" style="display: none;">
+
+    <!-- JavaScript -->
     <script>
-      // Funktion zum Erstellen eines Sternobjekts
+      // --- Sterne wie vorher ---
       function createStar(x, y, z) {
-  return {
-    position: `${x} ${y} ${z}`,
-    color: "#FFD700",
-    size: 0.05
-  };
-}
+        return {
+          position: `${x} ${y} ${z}`,
+          color: "#FFD700",
+          size: 0.05
+        };
+      }
 
-
-      // Array mit Sternen
       const stars = [];
       for (let i = 0; i < 20; i++) {
         stars.push(createStar(
@@ -54,15 +68,27 @@
         ));
       }
 
-      // Sterne erzeugen und in Szene einfügen
-      const container = document.getElementById("stern-container");
+      const sternContainer = document.getElementById("stern-container");
       stars.forEach(star => {
         const el = document.createElement("a-sphere");
         el.setAttribute("position", star.position);
         el.setAttribute("radius", star.size);
         el.setAttribute("color", star.color);
-        container.appendChild(el);
+        sternContainer.appendChild(el);
       });
+
+      // --- Bunte Tropfen (Regen) ---
+      const regenContainer = document.getElementById("regen-container");
+      const farben = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF"];
+      
+      for (let i = 0; i < 30; i++) {
+        const drop = document.createElement("a-sphere");
+        drop.setAttribute("position", `${(Math.random() - 0.5) * 2} ${Math.random() * 2 + 0.5} ${(Math.random() - 0.5) * 2}`);
+        drop.setAttribute("radius", 0.03);
+        drop.setAttribute("color", farben[Math.floor(Math.random() * farben.length)]);
+        drop.setAttribute("animation", `property: position; to: 0 -0.5 0; dur: 2000; loop: true`);
+        regenContainer.appendChild(drop);
+      }
     </script>
   </body>
 </html>
